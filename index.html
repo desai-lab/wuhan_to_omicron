@@ -23,7 +23,7 @@
   <title>Interactive Data Browser</title>
 
 </head>
-<body onload="read_files('data/omicron.csv')">
+<body onload="read_files('data/omicron_dataset.csv')">
   <div id="yoda_everything">
     <div id="ace2_fluo_buttons">
     <div class='antigen_button antigen_active' id='antigen_ACE2' onclick="kd_for('ACE2')">ACE2</div>
@@ -31,10 +31,16 @@
     <div class='antigen_button antigen_active' id='antigen_Expression' onclick="kd_for('Expression')">Expression</div>
     </div>
     <div id='antibody_buttons'>
-    <!-- <div class='antigen_button antigen_active' id='antigen_S309' onclick="kd_for('S309')">S309</div> -->
-    <!-- <div class='antigen_button antigen_active' id='antigen_CB6' onclick="kd_for('CB6')">CB6</div> -->
-    <!-- <div class='antigen_button antigen_active' id='antigen_CoV555' onclick="kd_for('CoV555')">CoV555</div> -->
-    <!-- <div class='antigen_button antigen_active' id='antigen_REGN10987' onclick="kd_for('REGN10987')">REGN10987</div> -->
+    <div class='antigen_button antigen_active' id='antigen_S309' onclick="kd_for('S309')">S309</div>
+    <div class='antigen_button antigen_active' id='antigen_CB6' onclick="kd_for('CB6')">CB6</div>
+    <div class='antigen_button antigen_active' id='antigen_CoV555' onclick="kd_for('CoV555')">CoV555</div>
+    <div class='antigen_button antigen_active' id='antigen_REGN10987' onclick="kd_for('REGN10987')">REGN10987</div>
+    </div>
+
+    <div id='structure_fdl_buttons'>
+      <div id='structure_button_title'> Layout: </div>
+      <div class='fdl_button' id='fdl_button_Receptor'> Receptor </div>
+      <div class='fdl_button' id='fdl_button_Antibodies'> Antibodies </div>
     </div>
 
     <p id='yoda_title'>OMICRON</p>
@@ -49,7 +55,7 @@
       <div id="about_x_out" onclick="toggle_about()">✕</div>
       <h2>Omicron combinatorial landscape</h2>
       <p>
-	Combinatorial landscape between the Wuhan and Omicron strains of the SARS-CoV-2 virus. Work by the <a href="http://www.desai-lab.com/">Desai Lab</a>. Browser created by Milo Johnson (milo.s.johnson.13 [at] gmail.com)). Contact Thomas Dupic (dupic.thomas [at] gmail.com) for questions.
+	Combinatorial landscape between the Wuhan and Omicron strains of the Sars-Cov-2 virus. Work by the <a href="http://www.desai-lab.com/">Desai Lab</a>. Browser created by Milo Johnson (milo.s.johnson.13 [at] gmail.com)) & Thomas Dupic. Contact Thomas Dupic (dupic.thomas [at] gmail.com) for questions.
       </p>
 
       <h4> Tips </h4>
@@ -59,6 +65,7 @@
 	  <li> Click on Δ next to a mutation to color the landscape according to the effect of the mutation on this specific background (red/blue increased/decreased binding respectively) </li>
 	  <li> Click on a mutation to only show the variants that have it </li>
 	  <li> Use left/right arrow to move between variants </li>
+	  <li> The layout can be modified in the bottom left, click on "Receptor" to show the layout that only use the affinities to the receptor and click on "Antibodies" to show the layout based on Antibody affinity data only.
 	</ul>
       </p>
     </div>

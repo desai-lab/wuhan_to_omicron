@@ -21,25 +21,27 @@ var allele_divs = [];
 var v;
 var nb_replicates = {
   'ACE2': 3,
-  // 'CB6': 2,
-  // 'CoV555': 2,
-  // 'REGN10987': 2,
-  // 'S309': 2
-  
+  'CB6': 2,
+  'CoV555': 2,
+  'REGN10987': 2,
+  'S309': 2 
 }
+
+var layout = 'ACE2'
+
+
 var nb_concs = {'Expression': null,
                 'ACE2': 13,
-                // 'CB6': 11,
-                // 'CoV555': 10,
-                // 'REGN10987': 10,
-                // 'S309': 12
-               }
+                'CB6': 11,
+                'CoV555': 10,
+                'REGN10987': 10,
+                'S309': 12}
 var suffixes_rep = {
   'ACE2': ['_a', '_b', '_x'],
-  // 'CB6': ['_i', '_j'],
-  // 'CoV555': ['_e', '_v'],
-  // 'REGN10987': ['_g', '_h'],
-  // 'S309': ['_c', '_d']
+  'CB6': ['_i', '_j'],
+  'CoV555': ['_e', '_v'],
+  'REGN10987': ['_g', '_h'],
+  'S309': ['_c', '_d']
   
 }
 var delta_index = null;
@@ -73,14 +75,14 @@ for (let c of color_wheel) {
 var main_data;
 var main_svg;
 var use_data;
-var kd_data = {'Expression': {}, 'ACE2': {}}//, 'CB6': {}, 'CoV555': {}, 'REGN10987': {}, 'S309': {}};
+var kd_data = {'Expression': {}, 'ACE2': {}, 'CB6': {}, 'CoV555': {}, 'REGN10987': {}, 'S309': {}};
 var kd_conc_map = {
   'Expression': null,
   'ACE2': [0, -12.5, -12, -11.5, -11, -10.5, -10, -9.5,-9, -8.5, -8, -7.5, -7],
-  // 'CB6':[0, -12.75, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
-  // 'CoV555': [0, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
-  // 'REGN10987':[0, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
-  // 'S309': [0, -12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8, -7.5, -7],
+  'CB6':[0, -12.75, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
+  'CoV555': [0, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
+  'REGN10987':[0, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
+  'S309': [0, -12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8, -7.5, -7],
 }
 
 var xs;
@@ -93,9 +95,8 @@ var color_by_delta = d3.scaleSequential(d3.interpolateRdBu).domain([-2,2]);
 var color_by_freq = d3.scaleSequential(d3.interpolateRgb("white", "red")).domain([0,1]);
 var kd_curve_x = d3.scaleLinear().domain([-15,-5]).range([630,790]);
 var kd_curve_y = d3.scaleLinear().domain([2,5]).range([580,500]);
-var scale_y_violin =  {'Expression': 0.3, 'ACE2': 0.3,
-                       // 'CB6': 0.3, 'CoV555': 0.3, 'REGN10987': 0.3, 'S309': 0.1
-                      };
+var scale_y_violin =  {'Expression': 0.3, 'ACE2': 0.3, 'CB6': 0.3,
+                       'CoV555': 0.3, 'REGN10987': 0.3, 'S309': 0.1};
 
 var canvasWidth = 800;
 var canvasHeight = 600;
@@ -304,6 +305,19 @@ function color_delta(index) {
   flip_allele(index, "0");
 }
 
+function change_layout(e) {
+  d3.selectAll('.fdl_button').style('opacity', 1)
+  if (e.target.id == 'fdl_button_Receptor') {
+    layout = 'ACE2';
+    e.target.style.opacity = 0.6
+  }
+  else if (e.target.id == 'fdl_button_Antibodies') {
+    layout = 'Antibodies';
+    e.target.style.opacity = 0.6
+  }
+  setup_center_viz();
+}
+
 
 
 function calc_percentages(variants) {
@@ -437,8 +451,6 @@ function plot_kd_curve(variant) {
       let xspot = kd_curve_x(kd_conc_map[kd_var][nb_concs[kd_var]-j]);
       let yspot_val = tmp_row.get('c'+String(j)+suffixes[i], 0);
       let yerr_zone = [yspot_val-tmp_row.get('e'+String(j)+suffixes[i], 0), yspot_val+tmp_row.get('e'+String(j)+suffixes[i], 0)];
-      console.log(xspot)
-      console.log(yspot_val)
       points.push([xspot, kd_curve_y(yspot_val)]);
       main_svg.append('path')
         .attr('class', 'kd_curve_line')
@@ -457,8 +469,8 @@ function plot_kd_curve(variant) {
 
 function click_variant(variant) {
   click_circles[0]
-    .attr('cx', xs(data_by_variant[variant]['fdl_x']))
-    .attr('cy', ys(data_by_variant[variant]['fdl_y']))
+    .attr('cx', xs(data_by_variant[variant]['fdl_' + layout + '_x']))
+    .attr('cy', ys(data_by_variant[variant]['fdl_' + layout + '_y']))
     .attr('fill', colorMap[variant].formatHex())
     .attr('opacity', 1);
   click_circles[1]
@@ -524,6 +536,11 @@ function setup_left_bar() {
       */
 
 
+  d3.selectAll('.fdl_button')
+    .on('click', function(e, d) {change_layout(e)})
+
+  
+
   d3.selectAll('.allele_div')
     .append('div')
     .attr('class', 'allele_content allele_delta_button')
@@ -571,58 +588,33 @@ function svg_diamond(x, y, size) {
   return String(x)+','+String(y-size)+' '+String(x-size)+','+String(y)+' '+String(x)+','+String(y+size)+' '+String(x+size)+','+String(y);
 }
 
-function setup_interaction() {
-  update_hover_map();
-  let hover_circles = [];
-  for (let i=0; i<2; i++) {
-    hover_circles.push(main_svg.append('circle')
-      .attr('r', 5)
-      .attr('cx', 100)
-      .attr('cy', 100)
-      .attr('fill', 'none')
-      .attr('stroke', '#000000')
-      .attr('opacity', 0));
-    click_circles.push(main_svg.append('circle')
-      .attr('r', 5)
-      .attr('cx', 100)
-      .attr('cy', 100)
-      .attr('fill', 'none')
-      .attr('stroke', '#FF0088')
-      .attr('stroke-width', 2)
-      .attr('opacity', 0));
-  }
-  /* old coloring of germline and somatic
-  for (let v of Object.keys(color_variants)) {
-    main_svg
-      .append('polygon')
-        .attr('points', svg_diamond(xs(data_by_variant[v]['fdl_x']), ys(data_by_variant[v]['fdl_y']), 6))
-        .attr('fill', color_variants[v])
-        .attr('stroke', 'none');
-  }
-  */
-  
+function draw_labels() {
+  d3.selectAll(".germ_som_text").remove()
+  d3.selectAll(".germ_som_line").remove()
+
   main_svg.append('text')
     .attr('class', 'germ_som_text')
     .attr('dominant-baseline', 'hanging')
-    .attr('x', xs(data_by_variant[original]['fdl_x'])+100)
-    .attr('y', 560)
+    .attr('x', xs(data_by_variant[original]['fdl_' + layout + '_x'])-100)
+    .attr('y', 60)
     .style('inline-size', '100px')
     .html('Wuhan');
+
 
   main_svg.append('line')
     .attr('class', 'germ_som_line')
     .attr('stroke', '#555555')
     .attr('stroke-width', 1)
-    .attr('x1', xs(data_by_variant[original]['fdl_x'])+100)
-    .attr('y1', 550)
-    .attr('x2', xs(data_by_variant[original]['fdl_x']))
-    .attr('y2', ys(data_by_variant[original]['fdl_y']));
+    .attr('x1', xs(data_by_variant[original]['fdl_' + layout + '_x'])-60)
+    .attr('y1', 70)
+    .attr('x2', xs(data_by_variant[original]['fdl_' + layout + '_x']))
+    .attr('y2', ys(data_by_variant[original]['fdl_' + layout + '_y']));
 
   main_svg.append('text')
     .attr('class', 'germ_som_text')
     .attr('dominant-baseline', 'hanging')
-    .attr('x', xs(data_by_variant[variant]['fdl_x'])-50)
-    .attr('y', 70)
+    .attr('x', xs(data_by_variant[variant]['fdl_' + layout + '_x'])+50)
+    .attr('y', 600)
     .style('inline-size', '100px')
     .html('Omicron');
 
@@ -630,12 +622,53 @@ function setup_interaction() {
     .attr('class', 'germ_som_line')
     .attr('stroke', '#555555')
     .attr('stroke-width', 1)
-    .attr('x1', xs(data_by_variant[variant]['fdl_x'])-25)
-    .attr('y1', 90)
-    .attr('x2', xs(data_by_variant[variant]['fdl_x']))
-    .attr('y2', ys(data_by_variant[variant]['fdl_y']));
+    .attr('x1', xs(data_by_variant[variant]['fdl_' + layout + '_x'])+25)
+    .attr('y1', 595)
+    .attr('x2', xs(data_by_variant[variant]['fdl_' + layout + '_x']))
+    .attr('y2', ys(data_by_variant[variant]['fdl_' + layout + '_y']));
+}
+
+
+function setup_interaction() {
+  update_hover_map();
+  /* old coloring of germline and somatic
+  for (let v of Object.keys(color_variants)) {
+    main_svg
+      .append('polygon')
+        .attr('points', svg_diamond(xs(data_by_variant[v]['fdl_' + layout + '_x']), ys(data_by_variant[v]['fdl_' + layout + '_y']), 6))
+        .attr('fill', color_variants[v])
+        .attr('stroke', 'none');
+  }
+  */
+
+  // setup hover circles
+
+
   
-  
+  if(!("hover_circles" in window)){
+    var hover_circles = [];
+    for (let i = 0; i < 2; i++) {
+      hover_circles.push(main_svg.append('circle')
+			 .attr('r', 5)
+			 .attr('cx', 100)
+			 .attr('cy', 100)
+			 .attr('fill', 'none')
+			 .attr('stroke', '#000000')
+			 .attr('opacity', 0));
+      click_circles.push(main_svg.append('circle')
+			 .attr('r', 5)
+			 .attr('cx', 100)
+			 .attr('cy', 100)
+			 .attr('fill', 'none')
+			 .attr('stroke', '#FF0088')
+			 .attr('stroke-width', 2)
+			 .attr('opacity', 0));
+    }
+  }
+
+
+
+  main_svg.on('mousemove', null) 
   main_svg.on('mousemove', function(event, d) {
     let [mx, my] = d3.pointer(event, this);
     if ((mx < canvasWidth) && (my < canvasHeight)) {
@@ -662,6 +695,8 @@ function setup_interaction() {
       }
     }
   });
+
+  main_svg.on('click', null)
   main_svg.on('click', function(event, d) {
     main_svg.selectAll('.kd_curve_line').remove();
     let [mx, my] = d3.pointer(event, this);
@@ -694,6 +729,21 @@ function setup_interaction() {
       .on("start brush", function(event) { process_brush(event); }) // Each time the brush selection changes, trigger the 'process_brush' function
     )
 
+
+  d3.select('body').on('keydown', function(e) {
+    if (['ArrowDown', 'ArrowRight'].indexOf(e.key)>-1) {
+      iterate_over_points(1, e.shiftKey);
+    } else if (['ArrowUp', 'ArrowLeft'].indexOf(e.key)>-1) {
+      iterate_over_points(-1, e.shiftKey);
+    }
+  })
+
+  d3.select("#geno_display_switch").on("change", label_genos);
+}
+
+
+
+function setup_violin(){
   // adding bottom plot for kd curves
   //adding violin plot axis
   main_svg.append('g')
@@ -726,17 +776,7 @@ function setup_interaction() {
     .attr('class', 'y_axis_label')
     .attr('x', kd_curve_x(-16.5))
     .attr('y', kd_curve_y(2.5))
-    .html('bin');
-
-  d3.select('body').on('keydown', function(e) {
-    if (['ArrowDown', 'ArrowRight'].indexOf(e.key)>-1) {
-      iterate_over_points(1, e.shiftKey);
-    } else if (['ArrowUp', 'ArrowLeft'].indexOf(e.key)>-1) {
-      iterate_over_points(-1, e.shiftKey);
-    }
-  })
-
-  d3.select("#geno_display_switch").on("change", label_genos);
+    .html('bin');  
 }
 
 
@@ -746,7 +786,9 @@ function get_violin_y(xpos, d) {
   }
   let tmp_dict = violin_y_pos_counter[d['geno_str']][1];
   if (xpos in tmp_dict) {
-    tmp_dict[xpos]++;
+    if(tmp_dict[xpos] < 1000){  // if too high, cut if off so that it's not ugly (mostly apply to pin values)
+      tmp_dict[xpos]++;
+    }
   } else {
     tmp_dict[xpos]=0;
   }
@@ -766,21 +808,21 @@ function kd_for(kd_var_tmp) {
     color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([1.2,0.8]);
     d3.select("#x_axis_label_violin").text("Expression");
   }
-  // else if (kd_var == 'S309'){
-  //   x_by_kd = d3.scaleLinear().domain([7,11]).range([630,790]);
-  //   color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([7.5,10]);
-  //   d3.select("#x_axis_label_violin").text("-log10(Kd)");
-  // }
-  // else if (kd_var == 'CB6' || kd_var == 'CoV555'){
-  //   x_by_kd = d3.scaleLinear().domain([6,12]).range([630,790]);
-  //   color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([6,12]);
-  //   d3.select("#x_axis_label_violin").text("-log10(Kd)");
-  // }
-  // else if (kd_var == 'REGN10987'){
-  //   x_by_kd = d3.scaleLinear().domain([7,11]).range([630,790]);
-  //   color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([7.5,11]);
-  //   d3.select("#x_axis_label_violin").text("-log10(Kd)");
-  // }
+  else if (kd_var == 'S309'){
+    x_by_kd = d3.scaleLinear().domain([7,11]).range([630,790]);
+    color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([7.5,10]);
+    d3.select("#x_axis_label_violin").text("-log10(Kd)");
+  }
+  else if (kd_var == 'CB6' || kd_var == 'CoV555'){
+    x_by_kd = d3.scaleLinear().domain([6,12]).range([630,790]);
+    color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([6,12]);
+    d3.select("#x_axis_label_violin").text("-log10(Kd)");
+  }
+  else if (kd_var == 'REGN10987'){
+    x_by_kd = d3.scaleLinear().domain([7,11]).range([630,790]);
+    color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([7.5,11]);
+    d3.select("#x_axis_label_violin").text("-log10(Kd)");
+  }
 
 
   
@@ -813,21 +855,20 @@ function kd_for(kd_var_tmp) {
 }
 
 function setup_viz() {
-  /*
-  var stage = new NGL.Stage("yoda_ngl_viewer");
-  stage.loadFile("rcsb://4FQI", {defaultRepresentation: true});
-  stage.setParameters({
-    backgroundColor: "white"
-  });
-  stage.mouseControls.remove("hoverPick");
-  */
 
+  setup_center_viz();
+  setup_interaction();
+  setup_violin();
+  setup_left_bar();
+}
+
+function setup_center_viz(){
   canvas = document.getElementById("yoda_canvas");
   main_svg = d3.select("#yoda_svg");
   ctx = canvas.getContext("2d");
   canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-  let x_domain = d3.extent(main_data.map(d=>parseFloat(d.fdl_x)));
-  let y_domain = d3.extent(main_data.map(d=>parseFloat(d.fdl_y)));
+  let x_domain = d3.extent(main_data.map(d=>parseFloat(d['fdl_' + layout + '_x'])));
+  let y_domain = d3.extent(main_data.map(d=>parseFloat(d['fdl_' + layout + '_y'])));
   let x_d_dif = x_domain[1]-x_domain[0];
   let y_d_dif = y_domain[1]-y_domain[0];
   if (x_d_dif > y_d_dif) {
@@ -847,8 +888,8 @@ function setup_viz() {
   for (let d of main_data) {
     data_by_variant[d['variant']] = d;
     d['geno_str'] = ''; //empty because no alleles are colored yet
-    d['x_exact'] = xs(Number(d['fdl_x']));
-    d['y_exact'] = ys(Number(d['fdl_y']));
+    d['x_exact'] = xs(Number(d['fdl_' + layout + '_x']));
+    d['y_exact'] = ys(Number(d['fdl_' + layout + '_y']));
     d['x'] = Math.floor(d['x_exact']); // TODO: make pixel interpretation technically correct
     d['y'] = Math.floor(d['y_exact']);
     if (d[kd_var+'_log10Kd'] == '') { //if Kd is undefined, assume lower limit
@@ -866,11 +907,13 @@ function setup_viz() {
       }
     }
   }
-  setup_left_bar();
   color_data(first_time=true);
   draw_data();
-  setup_interaction();
+  draw_labels();
+  update_hover_map();
 }
+
+
 
 function read_files(fpath) {
   console.log('starting yoda viz...')
@@ -880,10 +923,10 @@ function read_files(fpath) {
     use_data = main_data;
     // load the data for the Kds
     aq.loadArrow('data/ACE2.arrow').then((td) => kd_data['ACE2']=td);
-    // aq.loadArrow('data/CB6.arrow').then((td) => kd_data['CB6']=td);
-    // aq.loadArrow('data/S309.arrow').then((td) => kd_data['S309']=td);
-    // aq.loadArrow('data/REGN10987.arrow').then((td) => kd_data['REGN10987']=td);
-    // aq.loadArrow('data/CoV555.arrow').then((td) => kd_data['CoV555']=td);
+    aq.loadArrow('data/CB6.arrow').then((td) => kd_data['CB6']=td);
+    aq.loadArrow('data/S309.arrow').then((td) => kd_data['S309']=td);
+    aq.loadArrow('data/REGN10987.arrow').then((td) => kd_data['REGN10987']=td);
+    aq.loadArrow('data/CoV555.arrow').then((td) => kd_data['CoV555']=td);
     
     d3.select('#loading_message').style('display', 'none');
     setup_viz();
