@@ -860,6 +860,7 @@ function setup_viz() {
   setup_interaction();
   setup_violin();
   setup_left_bar();
+  d3.selectAll('#fdl_button_Receptor').style('opacity', 0.6)
 }
 
 function setup_center_viz(){
