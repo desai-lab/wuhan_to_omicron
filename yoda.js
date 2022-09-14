@@ -21,7 +21,7 @@ var allele_divs = [];
 var v;
 var nb_replicates = {
   'ACE2': 3,
-  'CB6': 2,
+  'CoV016': 2,
   'CoV555': 2,
   'REGN10987': 2,
   'S309': 2 
@@ -32,13 +32,13 @@ var layout = 'ACE2'
 
 var nb_concs = {'Expression': null,
                 'ACE2': 13,
-                'CB6': 11,
+                'CoV016': 11,
                 'CoV555': 10,
                 'REGN10987': 10,
                 'S309': 12}
 var suffixes_rep = {
   'ACE2': ['_a', '_b', '_x'],
-  'CB6': ['_i', '_j'],
+  'CoV016': ['_i', '_j'],
   'CoV555': ['_e', '_v'],
   'REGN10987': ['_g', '_h'],
   'S309': ['_c', '_d']
@@ -75,11 +75,11 @@ for (let c of color_wheel) {
 var main_data;
 var main_svg;
 var use_data;
-var kd_data = {'Expression': {}, 'ACE2': {}, 'CB6': {}, 'CoV555': {}, 'REGN10987': {}, 'S309': {}};
+var kd_data = {'Expression': {}, 'ACE2': {}, 'CoV016': {}, 'CoV555': {}, 'REGN10987': {}, 'S309': {}};
 var kd_conc_map = {
   'Expression': null,
   'ACE2': [0, -12.5, -12, -11.5, -11, -10.5, -10, -9.5,-9, -8.5, -8, -7.5, -7],
-  'CB6':[0, -12.75, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
+  'CoV016':[0, -12.75, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
   'CoV555': [0, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
   'REGN10987':[0, -12, -11.25, -10.5, -9.75, -9, -8.25, -7.5, -6.75, -6],
   'S309': [0, -12, -11.5, -11, -10.5, -10, -9.5, -9, -8.5, -8, -7.5, -7],
@@ -95,7 +95,7 @@ var color_by_delta = d3.scaleSequential(d3.interpolateRdBu).domain([-2,2]);
 var color_by_freq = d3.scaleSequential(d3.interpolateRgb("white", "red")).domain([0,1]);
 var kd_curve_x = d3.scaleLinear().domain([-15,-5]).range([630,790]);
 var kd_curve_y = d3.scaleLinear().domain([2,5]).range([580,500]);
-var scale_y_violin =  {'Expression': 0.3, 'ACE2': 0.3, 'CB6': 0.3,
+var scale_y_violin =  {'Expression': 0.3, 'ACE2': 0.3, 'CoV016': 0.3,
                        'CoV555': 0.3, 'REGN10987': 0.3, 'S309': 0.1};
 
 var canvasWidth = 800;
@@ -241,7 +241,7 @@ function color_data(first_time=false) {
     }
     else {
       let color_index = 0;
-      for (let i=0; i<alleles_colored.length; i++) {
+      for (let i=0; i < alleles_colored.length; i++) {
         color_index += (2**i)*Number(v[alleles_colored[i]]);
         geno_str += d['variant'][alleles_colored[i]] + ' ';
         ypos_counter += (2**i)*Number(v[alleles_colored[i]]);
@@ -785,12 +785,13 @@ function get_violin_y(xpos, d) {
     violin_y_pos_counter[d['geno_str']] = [d['ypos_base'], {}];
   }
   let tmp_dict = violin_y_pos_counter[d['geno_str']][1];
-  if (xpos in tmp_dict) {
-    if(tmp_dict[xpos] < 1000){  // if too high, cut if off so that it's not ugly (mostly apply to pin values)
+  if(xpos > x_by_kd.range()[0]) // don't show the bar if it matches the lower limit
+  {
+    if (xpos in tmp_dict) {
       tmp_dict[xpos]++;
+    } else {
+      tmp_dict[xpos]=0;
     }
-  } else {
-    tmp_dict[xpos]=0;
   }
   return Math.round(d['ypos_base'] + ((tmp_dict[xpos] % 2)-0.5)*scale_y_violin[kd_var]*tmp_dict[xpos]);
 }
@@ -813,7 +814,7 @@ function kd_for(kd_var_tmp) {
     color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([7.5,10]);
     d3.select("#x_axis_label_violin").text("-log10(Kd)");
   }
-  else if (kd_var == 'CB6' || kd_var == 'CoV555'){
+  else if (kd_var == 'CoV016' || kd_var == 'CoV555'){
     x_by_kd = d3.scaleLinear().domain([6,12]).range([630,790]);
     color_by_kd = d3.scaleSequential(d3.interpolateViridis).domain([6,12]);
     d3.select("#x_axis_label_violin").text("-log10(Kd)");
@@ -924,7 +925,7 @@ function read_files(fpath) {
     use_data = main_data;
     // load the data for the Kds
     aq.loadArrow('data/ACE2.arrow').then((td) => kd_data['ACE2']=td);
-    aq.loadArrow('data/CB6.arrow').then((td) => kd_data['CB6']=td);
+    aq.loadArrow('data/CB6.arrow').then((td) => kd_data['CoV016']=td);
     aq.loadArrow('data/S309.arrow').then((td) => kd_data['S309']=td);
     aq.loadArrow('data/REGN10987.arrow').then((td) => kd_data['REGN10987']=td);
     aq.loadArrow('data/CoV555.arrow').then((td) => kd_data['CoV555']=td);
